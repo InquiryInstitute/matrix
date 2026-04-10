@@ -1,0 +1,23 @@
+# Local env and secrets
+.env
+.env.local
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Synapse / Matrix runtime (keys, DB, logs — never commit)
+matrix-data/
+
+# Bot credentials and local director data
+castalia-bot-credentials.json
+matrix-bot-credentials.json
+directors-config.json
+
+# Local tooling
+.whisper/
+
+# OS
+.DS_Store

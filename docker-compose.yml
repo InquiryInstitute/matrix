@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Synapse
+  postgres:
+    image: postgres:15-alpine
+    container_name: matrix-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-synapse_password}
+      POSTGRES_DB: synapse
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - matrix-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U synapse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for Synapse workers (optional but recommended)
+  redis:
+    image: redis:7-alpine
+    container_name: matrix-redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    volumes:
+      - redis-data:/data
+    networks:
+      - matrix-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Synapse Matrix Homeserver
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: matrix-synapse
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8008:8008"   # HTTP client + federation (TLS typically via reverse proxy on 443)
+      - "19001:19001" # Metrics (optional)
+    volumes:
+      - ./matrix-data:/data
+    environment:
+      SYNAPSE_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.inquiry.institute}
+      SYNAPSE_REPORT_STATS: ${SYNAPSE_REPORT_STATS:-no}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-synapse_password}
+      POSTGRES_DB: synapse
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+    networks:
+      - matrix-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8008/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Element Web Client (optional but recommended)
+  element-web:
+    image: vectorim/element-web:latest
+    container_name: matrix-element
+    restart: always
+    depends_on:
+      - synapse
+    ports:
+      - "8080:80"
+    volumes:
+      - ./element-config.json:/app/config.json:ro
+    environment:
+      VECTOR_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.inquiry.institute}
+      DEFAULT_SERVER_URL: ${MATRIX_SERVER_URL:-http://localhost:8008}
+    networks:
+      - matrix-network
+
+  # Synapse Admin API (optional - for management)
+  # synapse-admin:
+  #   image: awesometechnologies/synapse-admin:latest
+  #   container_name: matrix-admin
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - synapse
+  #   ports:
+  #     - "8081:80"
+  #   environment:
+  #     REACT_APP_SERVER: http://synapse:8008
+  #   networks:
+  #     - matrix-network
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  matrix-network:
+    driver: bridge

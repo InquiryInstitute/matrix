@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "prompt_prepend": "Optional text placed before the user's message (e.g. room purpose).",
+  "prompt_append": "Optional text placed after the quoted message (instructions for tone, length, or topic).",
+  "context": "dialogue",
+  "extra_request_fields": {
+    "use_rag": true,
+    "use_commonplace": true
+  },
+  "header_overrides": {
+    "X-Context": "office_hours",
+    "X-LLM-Model": "gemini-2.5-flash"
+  }
+}
