@@ -69,7 +69,7 @@ In Element Web:
 In the room:
 1. Click the room name at the top
 2. Click **"Settings"** → **"Advanced"**
-3. Copy the **Room ID** (looks like `!abc123:matrix.inquiry.institute`)
+3. Copy the **Room ID** (looks like `!abc123:matrix.castalia.institute`)
 
 ### Step 6: Invite the Bots
 
@@ -80,21 +80,21 @@ You have two options:
 In the room, click **"Invite"** and add these Matrix IDs:
 
 **Directors (10):**
-- `@aDirector.aetica:matrix.inquiry.institute`
-- `@aDirector.scholia:matrix.inquiry.institute`
-- `@aDirector.pedagogia:matrix.inquiry.institute`
-- `@aDirector.machina:matrix.inquiry.institute`
-- `@aDirector.terra:matrix.inquiry.institute`
-- `@aDirector.cultura:matrix.inquiry.institute`
-- `@aDirector.aureus:matrix.inquiry.institute`
-- `@aDirector.fabrica:matrix.inquiry.institute`
-- `@aDirector.civitas:matrix.inquiry.institute`
-- `@aDirector.lex:matrix.inquiry.institute`
+- `@aDirector.aetica:matrix.castalia.institute`
+- `@aDirector.scholia:matrix.castalia.institute`
+- `@aDirector.pedagogia:matrix.castalia.institute`
+- `@aDirector.machina:matrix.castalia.institute`
+- `@aDirector.terra:matrix.castalia.institute`
+- `@aDirector.cultura:matrix.castalia.institute`
+- `@aDirector.aureus:matrix.castalia.institute`
+- `@aDirector.fabrica:matrix.castalia.institute`
+- `@aDirector.civitas:matrix.castalia.institute`
+- `@aDirector.lex:matrix.castalia.institute`
 
 **Special Bots (3):**
-- `@aCustodian.custodian:matrix.inquiry.institute`
-- `@aParliamentarian.parliamentarian:matrix.inquiry.institute`
-- `@aAssistant.hypatia:matrix.inquiry.institute`
+- `@aCustodian.custodian:matrix.castalia.institute`
+- `@aParliamentarian.parliamentarian:matrix.castalia.institute`
+- `@aAssistant.hypatia:matrix.castalia.institute`
 
 #### Option B: Automated Invites (after creating bots)
 

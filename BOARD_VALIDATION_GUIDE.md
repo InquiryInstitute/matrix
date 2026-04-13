@@ -85,17 +85,17 @@ In the board room:
 
 1. Click the room name → "Invite"
 2. Invite each bot by their Matrix ID:
-   - @aCustodian.custodian:matrix.inquiry.institute
-   - @aDirector.aetica:matrix.inquiry.institute
-   - @aDirector.scholia:matrix.inquiry.institute
-   - @aDirector.pedagogia:matrix.inquiry.institute
-   - @aDirector.machina:matrix.inquiry.institute
-   - @aDirector.terra:matrix.inquiry.institute
-   - @aDirector.cultura:matrix.inquiry.institute
-   - @aDirector.aureus:matrix.inquiry.institute
-   - @aDirector.fabrica:matrix.inquiry.institute
-   - @aDirector.civitas:matrix.inquiry.institute
-   - @aDirector.lex:matrix.inquiry.institute
+   - @aCustodian.custodian:matrix.castalia.institute
+   - @aDirector.aetica:matrix.castalia.institute
+   - @aDirector.scholia:matrix.castalia.institute
+   - @aDirector.pedagogia:matrix.castalia.institute
+   - @aDirector.machina:matrix.castalia.institute
+   - @aDirector.terra:matrix.castalia.institute
+   - @aDirector.cultura:matrix.castalia.institute
+   - @aDirector.aureus:matrix.castalia.institute
+   - @aDirector.fabrica:matrix.castalia.institute
+   - @aDirector.civitas:matrix.castalia.institute
+   - @aDirector.lex:matrix.castalia.institute
 
 Or use the script to get the list:
 ```bash
@@ -125,7 +125,7 @@ Test a single director bot:
 export DIRECTOR_NAME=aetica
 export MATRIX_PASSWORD=bot_aetica_password_change_me
 export MATRIX_SERVER=http://localhost:8008
-export MATRIX_DOMAIN=matrix.inquiry.institute
+export MATRIX_DOMAIN=matrix.castalia.institute
 
 # Start the bot
 python3 scripts/matrix-director-bot.py
@@ -145,7 +145,7 @@ Start the custodian bot (similar to director bot):
 export DIRECTOR_NAME=custodian
 export MATRIX_PASSWORD=bot_custodian_password_change_me
 export MATRIX_SERVER=http://localhost:8008
-export MATRIX_DOMAIN=matrix.inquiry.institute
+export MATRIX_DOMAIN=matrix.castalia.institute
 
 # Start the bot (using the director bot script)
 python3 scripts/matrix-director-bot.py
@@ -157,8 +157,8 @@ Or create a dedicated custodian bot script if needed.
 
 In Element Web, in the board room:
 
-1. Send a message: "Hello @aCustodian.custodian:matrix.inquiry.institute"
-2. Send a message: "Hello @aDirector.aetica:matrix.inquiry.institute"
+1. Send a message: "Hello @aCustodian.custodian:matrix.castalia.institute"
+2. Send a message: "Hello @aDirector.aetica:matrix.castalia.institute"
 3. Verify bots respond
 
 ## Validation Checklist

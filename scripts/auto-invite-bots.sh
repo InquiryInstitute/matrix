@@ -3,8 +3,8 @@
 
 set -e
 
-ROOM_ID="!aEqllYpAjknuXJTPGD:matrix.inquiry.institute"
-MATRIX_SERVER="https://matrix.inquiry.institute"
+ROOM_ID="!aEqllYpAjknuXJTPGD:matrix.castalia.institute"
+MATRIX_SERVER="https://matrix.castalia.institute"
 
 echo "🔷 Auto-Invite Bots to Board Room"
 echo "=================================="

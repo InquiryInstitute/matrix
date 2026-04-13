@@ -26,8 +26,8 @@ except ImportError:
     print("❌ matrix-nio not installed. Install with: pip install matrix-nio")
     sys.exit(1)
 
-MATRIX_SERVER = os.getenv("MATRIX_SERVER", "https://matrix.inquiry.institute").rstrip("/")
-MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.inquiry.institute")
+MATRIX_SERVER = os.getenv("MATRIX_SERVER", "https://matrix.castalia.institute").rstrip("/")
+MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.castalia.institute")
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 

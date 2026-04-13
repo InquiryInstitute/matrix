@@ -7,11 +7,11 @@ Your Matrix Board of Directors system is now configured with:
 ### Board Members (13 total)
 
 **Special Bots (3):**
-1. **Custodian** - `@aCustodian.custodian:matrix.inquiry.institute`
+1. **Custodian** - `@aCustodian.custodian:matrix.castalia.institute`
    - Manages board operations
-2. **Parliamentarian** - `@aParliamentarian.parliamentarian:matrix.inquiry.institute`
+2. **Parliamentarian** - `@aParliamentarian.parliamentarian:matrix.castalia.institute`
    - Ensures proper procedures
-3. **Hypatia** - `@aAssistant.hypatia:matrix.inquiry.institute`
+3. **Hypatia** - `@aAssistant.hypatia:matrix.castalia.institute`
    - Custodian assistant
 
 **Directors (10):**

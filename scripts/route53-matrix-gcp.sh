@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
-# Point matrix.inquiry.institute at GCP: remove Fly CNAME, add A record to reserved Matrix IP.
-# Prereq: AWS CLI; profile with Route 53 change rights on inquiry.institute zone.
+# Point matrix.castalia.institute at GCP: remove Fly CNAME, add A record to reserved Matrix IP.
+# Prereq: AWS CLI; profile with Route 53 change rights on the zone for NAME.
 set -euo pipefail
 
 PROFILE="${AWS_PROFILE:-custodian}"
-# Hosted zone for inquiry.institute (not castalia)
 HOSTED_ZONE_ID="${ROUTE53_HOSTED_ZONE_ID:-Z0160339H8UNP018AYAN}"
-NAME="matrix.inquiry.institute."
+NAME="${MATRIX_DNS_NAME:-matrix.castalia.institute.}"
 IP="${1:?usage: $0 <gcp_matrix_static_ipv4>}"
 
 if ! [[ "$IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then

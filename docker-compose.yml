@@ -53,7 +53,7 @@ services:
     volumes:
       - ./matrix-data:/data
     environment:
-      SYNAPSE_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.inquiry.institute}
+      SYNAPSE_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.castalia.institute}
       SYNAPSE_REPORT_STATS: ${SYNAPSE_REPORT_STATS:-no}
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
@@ -87,7 +87,7 @@ services:
       # Hostname-specific config fetch (getconfig.ts); same file avoids 404 on custom domains.
       - ./element-config.json:/app/config.element.castalia.institute.json:ro
     environment:
-      VECTOR_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.inquiry.institute}
+      VECTOR_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.castalia.institute}
       # Client API URL for well-known; use Castalia hostname in prod (must match Synapse public_baseurl + Supabase OAuth redirect).
       DEFAULT_SERVER_URL: ${MATRIX_SERVER_URL:-https://matrix.castalia.institute}
     networks:

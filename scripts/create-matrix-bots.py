@@ -34,8 +34,8 @@ SPECIAL_BOTS = [
     "hypatia"         # Custodian assistant
 ]
 
-MATRIX_SERVER_URL = os.getenv("MATRIX_SERVER_URL", "https://matrix.inquiry.institute")
-MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.inquiry.institute")
+MATRIX_SERVER_URL = os.getenv("MATRIX_SERVER_URL", "https://matrix.castalia.institute")
+MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.castalia.institute")
 HOMESERVER_CONFIG = os.getenv(
     "HOMESERVER_CONFIG",
     os.path.expanduser("~/GitHub/matrix/matrix-data/homeserver.yaml")
@@ -193,7 +193,7 @@ def main():
     print("   Option A: Use Matrix Admin API (if you have admin token)")
     print("   Option B: Use Fly.io SSH:")
     print("      fly ssh console -a <your-matrix-app-name>")
-    print("      register_new_matrix_user -c /data/homeserver.yaml https://matrix.inquiry.institute")
+    print("      register_new_matrix_user -c /data/homeserver.yaml https://matrix.castalia.institute")
     print("")
     print("2. Update passwords in matrix-bot-credentials.json")
     print("3. Create Board of Directors room")

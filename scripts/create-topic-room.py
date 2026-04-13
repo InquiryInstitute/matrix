@@ -29,7 +29,7 @@ except ImportError:
     sys.exit(1)
 
 MATRIX_SERVER = os.getenv("MATRIX_SERVER", "http://localhost:8008")
-MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.inquiry.institute")
+MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.castalia.institute")
 ELEMENT_URL = os.getenv("ELEMENT_URL", "http://localhost:8080")
 CREDENTIALS_FILE = Path(__file__).parent.parent / "matrix-bot-credentials.json"
 

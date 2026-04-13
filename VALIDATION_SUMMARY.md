@@ -7,7 +7,7 @@
 Modified `scripts/create-matrix-bots.py` to include:
 - Added `SPECIAL_BOTS` list with custodian
 - Created `create_special_bot_account()` function for custodian and other special bots
-- Custodian will be created as `aCustodian.custodian@matrix.inquiry.institute`
+- Custodian will be created as `aCustodian.custodian@matrix.castalia.institute`
 
 ### 2. Created Validation Scripts
 

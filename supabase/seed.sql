@@ -1,0 +1,1 @@
+-- Optional seed data for local `supabase db reset`. Matrix repo uses Supabase mainly for Auth/OIDC config.

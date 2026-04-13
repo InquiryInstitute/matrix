@@ -139,7 +139,7 @@ if [ ! -f "matrix-data/homeserver.yaml" ]; then
     
     docker run -it --rm \
         -v "$(pwd)/matrix-data:/data" \
-        -e SYNAPSE_SERVER_NAME=matrix.inquiry.institute \
+        -e SYNAPSE_SERVER_NAME=matrix.castalia.institute \
         -e SYNAPSE_REPORT_STATS=no \
         matrixdotorg/synapse:latest generate
     
@@ -168,7 +168,7 @@ if [ ! -f ".env" ]; then
 # Matrix Server Environment Variables
 # Generated: $(date)
 
-MATRIX_DOMAIN=matrix.inquiry.institute
+MATRIX_DOMAIN=matrix.castalia.institute
 MATRIX_SERVER_URL=http://localhost:8008
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 REDIS_PASSWORD=${REDIS_PASSWORD}

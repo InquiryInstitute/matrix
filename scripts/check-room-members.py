@@ -16,8 +16,8 @@ except ImportError:
     sys.exit(1)
 
 # Configuration
-MATRIX_SERVER = os.getenv("MATRIX_SERVER", "https://matrix.inquiry.institute")
-MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.inquiry.institute")
+MATRIX_SERVER = os.getenv("MATRIX_SERVER", "https://matrix.castalia.institute")
+MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.castalia.institute")
 USERNAME = os.getenv("MATRIX_USERNAME")
 PASSWORD = os.getenv("MATRIX_PASSWORD")
 

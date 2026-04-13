@@ -91,12 +91,12 @@ Example URL for Villa Diodati, phantasmagoria, thunderstorm:
    Deploy the app (e.g. Fly.io, a VPS, or any host), set env vars, then open the same URL in a browser (or send the link to someone). With `redirect=1` they are sent to your Element instance.
 
 2. **Env vars when deployed**
-   - `MATRIX_SERVER` – e.g. `https://matrix.inquiry.institute`
-   - `MATRIX_DOMAIN` – e.g. `matrix.inquiry.institute`
-   - `ELEMENT_URL` – e.g. `https://element.inquiry.institute` (so the redirect/link points to your Element on the web)
+   - `MATRIX_SERVER` – e.g. `https://matrix.castalia.institute`
+   - `MATRIX_DOMAIN` – e.g. `matrix.castalia.institute`
+   - `ELEMENT_URL` – e.g. `https://element.castalia.institute` (so the redirect/link points to your Element on the web)
    - `ADMIN_USERNAME` / `ADMIN_PASSWORD` – Matrix admin (or user that can create rooms and invite)
 
 3. **Calling from another web app (fetch)**  
-   If a frontend on another origin (e.g. `https://app.inquiry.institute`) calls your create-room endpoint with `fetch()`, set:
-   - `CORS_ORIGIN=https://app.inquiry.institute`  
+   If a frontend on another origin (e.g. `https://app.castalia.institute`) calls your create-room endpoint with `fetch()`, set:
+   - `CORS_ORIGIN=https://app.castalia.institute`  
    Then the browser will allow the response. Without this, direct navigation and same-origin use still work; only cross-origin fetch needs it.

@@ -22,7 +22,7 @@ DIRECTOR_NAME = os.getenv("DIRECTOR_NAME", "aetica")
 MATRIX_SERVER = os.getenv("MATRIX_SERVER", "http://localhost:8008")
 MATRIX_USERNAME = f"aDirector.{DIRECTOR_NAME}"
 MATRIX_PASSWORD = os.getenv("MATRIX_PASSWORD")
-MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.inquiry.institute")
+MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.castalia.institute")
 
 # Load director RAG config
 CONFIG_DIR = Path(__file__).parent.parent / "configs" / "directors"

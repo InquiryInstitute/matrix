@@ -2,7 +2,7 @@
 # List which bots should be in the board room
 # This is a simple version that doesn't require Python dependencies
 
-ROOM_ID="!aEqllYpAjknuXJTPGD:matrix.inquiry.institute"
+ROOM_ID="!aEqllYpAjknuXJTPGD:matrix.castalia.institute"
 
 echo "🔷 Board Room - Expected Members"
 echo "================================="

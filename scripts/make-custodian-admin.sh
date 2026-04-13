@@ -1,8 +1,13 @@
 #!/bin/bash
 # Make custodian a server admin using Synapse Admin API
+# Loads ADMIN_ACCESS_TOKEN from .env (repo root) if present.
 
-MATRIX_SERVER="https://matrix.inquiry.institute"
-CUSTODIAN_USER="@custodian:matrix.inquiry.institute"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/load-dotenv.sh"
+
+MATRIX_SERVER="https://matrix.castalia.institute"
+CUSTODIAN_USER="@custodian:matrix.castalia.institute"
 
 echo "🔷 Make Custodian Server Admin"
 echo "==============================="
@@ -11,15 +16,12 @@ echo ""
 if [ -z "${ADMIN_ACCESS_TOKEN}" ]; then
     echo "❌ ADMIN_ACCESS_TOKEN not set"
     echo ""
-    echo "You need an existing server admin's access token."
+    echo "Add to .env in the repo root (or export for one session):"
+    echo "  ADMIN_ACCESS_TOKEN=syt_..."
     echo ""
-    echo "To get it:"
-    echo "1. Login to Element Web as a server admin"
-    echo "2. Go to Settings → Help & About"
-    echo "3. Reveal and copy the Access Token"
+    echo "Get the token: Element Web (server admin) → Settings → Help & About → Access token"
     echo ""
     echo "Then run:"
-    echo "  export ADMIN_ACCESS_TOKEN=your_admin_token"
     echo "  ./scripts/make-custodian-admin.sh"
     exit 1
 fi

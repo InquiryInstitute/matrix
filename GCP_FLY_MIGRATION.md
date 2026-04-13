@@ -4,10 +4,10 @@
 
 | Item | Detail |
 |------|--------|
-| **Fly.io** | `matrix.inquiry.institute` → CNAME → `inquiry-matrix.fly.dev` (live today). |
+| **Fly.io** | `matrix.castalia.institute` → CNAME → `inquiry-matrix.fly.dev` (live today). |
 | **GCP static IP (east1, legacy doc)** | `matrix-ip` = **34.148.23.74** (`us-east1`), **RESERVED** — only attach to a VM in **`us-east1`**. |
 | **GCP VM** | `matrix-synapse` was removed; **recreate** before or right after DNS cutover. |
-| **DNS (Route 53)** | Zone `inquiry.institute` — `matrix.inquiry.institute` is a **CNAME** to Fly. For GCP, use an **A** record to your Matrix VM’s **regional** static IP (see below). |
+| **DNS (Route 53)** | Zone for `castalia.institute` — `matrix.castalia.institute` may be a **CNAME** to Fly during migration. For GCP, use an **A** record to your Matrix VM’s **regional** static IP (see below). |
 | **Firewall** | Rules `matrix-http`, `matrix-https`, `matrix-federation` apply to instances tagged **`matrix-server`** (ports **80**, **443**, **8448**). Put **Synapse behind TLS** on 443 (nginx/Caddy); federation stays on **8448**. |
 
 ## Region: central, west, or east
@@ -49,14 +49,14 @@ gcloud compute project-info describe --project=institute-481516 \
 
 1. **Data (if Fly is canonical)** — Export Synapse/Postgres from Fly and restore on GCP, *or* accept starting from GCP backup only. Plan this before cutover if users rely on Fly history.
 2. **Static IP in target region** — `./scripts/gcp-matrix-static-ip.sh` (set `GCP_REGION` / `STATIC_IP_NAME` as needed).
-3. **Create VM** — `GCP_REGION=… GCP_ZONE=… MACHINE_TYPE=… ./scripts/gcp-create-matrix-vm.sh`. Deploy repo: `docker compose up -d`, sync `matrix-data/`, TLS on **443**, `public_baseurl` / federation for `https://matrix.inquiry.institute`.
-4. **Validate** — `curl -sS https://matrix.inquiry.institute/_matrix/client/versions` and federation checks.
-5. **DNS cutover** — `./scripts/route53-matrix-gcp.sh <matrix_static_ipv4>` (replaces Fly CNAME with **A** to that IP). Use the IP shown for the address in **your chosen region**. `_matrix._tcp` SRV can stay if it still points at `matrix.inquiry.institute:8448`.
+3. **Create VM** — `GCP_REGION=… GCP_ZONE=… MACHINE_TYPE=… ./scripts/gcp-create-matrix-vm.sh`. Deploy repo: `docker compose up -d`, sync `matrix-data/`, TLS on **443**, `public_baseurl` / federation for `https://matrix.castalia.institute`.
+4. **Validate** — `curl -sS https://matrix.castalia.institute/_matrix/client/versions` and federation checks.
+5. **DNS cutover** — `./scripts/route53-matrix-gcp.sh <matrix_static_ipv4>` (replaces Fly CNAME with **A** to that IP). Use the IP shown for the address in **your chosen region**. `_matrix._tcp` SRV can stay if it still points at `matrix.castalia.institute:8448`.
 6. **Fly** — Scale `inquiry-matrix` to **0** or remove the app after TTL and validation.
 
 ## Rollback
 
-Point `matrix.inquiry.institute` CNAME back to `inquiry-matrix.fly.dev` in Route 53.
+Point `matrix.castalia.institute` CNAME back to `inquiry-matrix.fly.dev` in Route 53.
 
 ## Scaling as usage grows
 

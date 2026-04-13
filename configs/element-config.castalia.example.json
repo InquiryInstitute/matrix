@@ -11,7 +11,7 @@
   "default_server_config": {
     "m.homeserver": {
       "base_url": "https://matrix.castalia.institute",
-      "server_name": "matrix.inquiry.institute"
+      "server_name": "matrix.castalia.institute"
     },
     "m.identity_server": {
       "base_url": "https://vector.im"
@@ -38,7 +38,7 @@
   "default_theme": "light",
   "room_directory": {
     "servers": [
-      "matrix.inquiry.institute"
+      "matrix.castalia.institute"
     ]
   },
   "setting_defaults": {

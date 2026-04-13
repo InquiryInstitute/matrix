@@ -4,17 +4,17 @@
 set -euo pipefail
 
 MATRIX_DIR="${MATRIX_DIR:-/opt/matrix}"
-MATRIX_DOMAIN="${MATRIX_DOMAIN:-matrix.inquiry.institute}"
+MATRIX_DOMAIN="${MATRIX_DOMAIN:-matrix.castalia.institute}"
 # Client-visible URL (TLS hostname). OIDC redirect_uri uses this — must match Supabase OAuth App (usually matrix.castalia.institute).
 SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL:-https://matrix.castalia.institute}"
-# Optional: CalDAV on same host (docker compose publishes 127.0.0.1:18080 — see cal.inquiry.institute repo).
+# Optional: CalDAV on same host (docker compose publishes 127.0.0.1:18080 — see cal.castalia.institute or CalDAV repo).
 CAL_DOMAIN="${CAL_DOMAIN:-cal.castalia.institute}"
 # Optional: extra hostnames for the same Synapse (TLS + proxy). Comma-separated, e.g. matrix.castalia.institute
 MATRIX_EXTRA_DOMAINS="${MATRIX_EXTRA_DOMAINS:-}"
 # Optional: Element Web hostnames (same VM; docker publishes 127.0.0.1:8080). e.g. element.castalia.institute
 ELEMENT_EXTRA_DOMAINS="${ELEMENT_EXTRA_DOMAINS:-}"
 REPO_URL="${MATRIX_REPO_URL:-https://github.com/InquiryInstitute/matrix.git}"
-export MATRIX_DIR MATRIX_DOMAIN CAL_DOMAIN MATRIX_EXTRA_DOMAINS ELEMENT_EXTRA_DOMAINS
+export MATRIX_DIR MATRIX_DOMAIN SYNAPSE_PUBLIC_BASEURL CAL_DOMAIN MATRIX_EXTRA_DOMAINS ELEMENT_EXTRA_DOMAINS
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -126,7 +126,7 @@ done
 
 cat > "${MATRIX_DIR}/Caddyfile" <<CADDY
 {
-  email custodian@inquiry.institute
+  email custodian@castalia.institute
 }
 ${MATRIX_DOMAIN} {
   reverse_proxy 127.0.0.1:8008

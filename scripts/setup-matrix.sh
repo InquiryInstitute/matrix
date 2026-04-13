@@ -48,7 +48,7 @@ if [ ! -f "matrix-data/homeserver.yaml" ]; then
     mkdir -p "${MATRIX_DIR}/matrix-data"
     docker run -it --rm \
         -v "${MATRIX_DIR}/matrix-data:/data" \
-        -e SYNAPSE_SERVER_NAME=matrix.inquiry.institute \
+        -e SYNAPSE_SERVER_NAME=matrix.castalia.institute \
         -e SYNAPSE_REPORT_STATS=no \
         matrixdotorg/synapse:latest generate
     echo "✅ Configuration generated"

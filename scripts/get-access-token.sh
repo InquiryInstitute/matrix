@@ -1,7 +1,7 @@
 #!/bin/bash
 # Get Matrix access token by logging in
 
-MATRIX_SERVER="https://matrix.inquiry.institute"
+MATRIX_SERVER="https://matrix.castalia.institute"
 
 echo "🔐 Get Matrix Access Token"
 echo "=========================="

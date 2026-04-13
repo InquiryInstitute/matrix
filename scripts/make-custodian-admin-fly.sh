@@ -36,7 +36,7 @@ fly ssh console -a "${APP_NAME}" -C "
 echo '🔐 Making custodian a server admin...'
 register_new_matrix_user \
   -c /data/homeserver.yaml \
-  https://matrix.inquiry.institute \
+  https://matrix.castalia.institute \
   -u custodian \
   -p bot_custodian_password_change_me \
   --admin \

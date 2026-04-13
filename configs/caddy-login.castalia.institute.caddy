@@ -1,0 +1,16 @@
+login.castalia.institute {
+  header Content-Security-Policy "frame-ancestors https://element.castalia.institute"
+  header Access-Control-Allow-Origin "https://element.castalia.institute"
+  header Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
+  header Access-Control-Allow-Headers "*"
+  @opt method OPTIONS
+  handle @opt {
+    header Access-Control-Allow-Origin "https://element.castalia.institute"
+    header Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
+    header Access-Control-Allow-Headers "*"
+    respond 204
+  }
+  root * /srv/castalia
+  file_server
+  encode gzip
+}

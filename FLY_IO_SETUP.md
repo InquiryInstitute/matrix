@@ -1,6 +1,6 @@
 # Board of Directors - Fly.io Setup
 
-Your Matrix server is running on Fly.io at `https://matrix.inquiry.institute`.
+Your Matrix server is running on Fly.io at `https://matrix.castalia.institute`.
 
 ## Current Status
 
@@ -12,21 +12,21 @@ Your Matrix server is running on Fly.io at `https://matrix.inquiry.institute`.
 ## Bot Accounts (13 total)
 
 ### Special Bots (3)
-- `@aCustodian.custodian:matrix.inquiry.institute`
-- `@aParliamentarian.parliamentarian:matrix.inquiry.institute`
-- `@aAssistant.hypatia:matrix.inquiry.institute`
+- `@aCustodian.custodian:matrix.castalia.institute`
+- `@aParliamentarian.parliamentarian:matrix.castalia.institute`
+- `@aAssistant.hypatia:matrix.castalia.institute`
 
 ### Directors (10)
-- `@aDirector.aetica:matrix.inquiry.institute`
-- `@aDirector.scholia:matrix.inquiry.institute`
-- `@aDirector.pedagogia:matrix.inquiry.institute`
-- `@aDirector.machina:matrix.inquiry.institute`
-- `@aDirector.terra:matrix.inquiry.institute`
-- `@aDirector.cultura:matrix.inquiry.institute`
-- `@aDirector.aureus:matrix.inquiry.institute`
-- `@aDirector.fabrica:matrix.inquiry.institute`
-- `@aDirector.civitas:matrix.inquiry.institute`
-- `@aDirector.lex:matrix.inquiry.institute`
+- `@aDirector.aetica:matrix.castalia.institute`
+- `@aDirector.scholia:matrix.castalia.institute`
+- `@aDirector.pedagogia:matrix.castalia.institute`
+- `@aDirector.machina:matrix.castalia.institute`
+- `@aDirector.terra:matrix.castalia.institute`
+- `@aDirector.cultura:matrix.castalia.institute`
+- `@aDirector.aureus:matrix.castalia.institute`
+- `@aDirector.fabrica:matrix.castalia.institute`
+- `@aDirector.civitas:matrix.castalia.institute`
+- `@aDirector.lex:matrix.castalia.institute`
 
 ## Next Steps
 
@@ -38,7 +38,7 @@ You have several options:
 
 1. Open https://app.element.io
 2. Click "Create Account"
-3. Set homeserver to: `matrix.inquiry.institute`
+3. Set homeserver to: `matrix.castalia.institute`
 4. Register each bot manually with their credentials from `matrix-bot-credentials.json`
 
 #### Option B: Use Fly.io SSH
@@ -50,7 +50,7 @@ fly ssh console -a <your-matrix-app-name>
 # Register each bot
 register_new_matrix_user \
   -c /data/homeserver.yaml \
-  https://matrix.inquiry.institute \
+  https://matrix.castalia.institute \
   -u aCustodian.custodian \
   -p <password>
 ```
@@ -63,7 +63,7 @@ If you have an admin access token:
 # Get admin token first (from your admin account)
 # Then register users via API
 
-curl -X POST "https://matrix.inquiry.institute/_synapse/admin/v1/register" \
+curl -X POST "https://matrix.castalia.institute/_synapse/admin/v1/register" \
   -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -121,8 +121,8 @@ python3 scripts/matrix-director-bot.py
 ### Environment Variables (.env)
 
 ```bash
-MATRIX_DOMAIN=matrix.inquiry.institute
-MATRIX_SERVER_URL=https://matrix.inquiry.institute
+MATRIX_DOMAIN=matrix.castalia.institute
+MATRIX_SERVER_URL=https://matrix.castalia.institute
 ```
 
 ### Bot Credentials
@@ -136,10 +136,10 @@ Located in: `matrix-bot-credentials.json`
 ### Option 1: Public Element (Recommended)
 https://app.element.io
 
-Set homeserver to: `matrix.inquiry.institute`
+Set homeserver to: `matrix.castalia.institute`
 
 ### Option 2: Self-hosted Element
-If you deploy Element to Fly.io: `https://element.inquiry.institute`
+If you deploy Element to Fly.io: `https://element.castalia.institute`
 
 ## Fly.io Commands
 
@@ -199,7 +199,7 @@ fly deploy -a <your-matrix-app-name>
 
 ```bash
 # Test connectivity
-curl https://matrix.inquiry.institute/_matrix/client/versions
+curl https://matrix.castalia.institute/_matrix/client/versions
 
 # Check Fly.io status
 fly status -a <your-matrix-app-name>
@@ -222,7 +222,7 @@ fly logs -a <your-matrix-app-name>
 3. Check bot credentials file
 4. Test with curl:
    ```bash
-   curl -X POST "https://matrix.inquiry.institute/_matrix/client/r0/login" \
+   curl -X POST "https://matrix.castalia.institute/_matrix/client/r0/login" \
      -H "Content-Type: application/json" \
      -d '{
        "type": "m.login.password",

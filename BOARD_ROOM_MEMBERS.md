@@ -4,8 +4,8 @@ Canonical list is **`matrix-bot-credentials.json`** (16 bot accounts). Scripts i
 
 ## Room
 
-- **Alias:** `#board-of-directors:matrix.inquiry.institute` (override with `BOARD_ROOM_ALIAS`)
-- **Room ID:** set after creation, or use `BOARD_ROOM_ID` env for tools. Older docs referenced `!aEqllYpAjknuXJTPGD:matrix.inquiry.institute` — resolve the alias to confirm the live id.
+- **Alias:** `#board-of-directors:matrix.castalia.institute` (override with `BOARD_ROOM_ALIAS`)
+- **Room ID:** set after creation, or use `BOARD_ROOM_ID` env for tools. Older docs referenced `!aEqllYpAjknuXJTPGD:matrix.castalia.institute` — resolve the alias to confirm the live id.
 
 ## Members (16)
 
@@ -13,23 +13,23 @@ Canonical list is **`matrix-bot-credentials.json`** (16 bot accounts). Scripts i
 
 | Role | Matrix ID |
 |------|-----------|
-| Custodian | `@aCustodian.custodian:matrix.inquiry.institute` |
-| Parliamentarian | `@aParliamentarian.parliamentarian:matrix.inquiry.institute` |
-| Hypatia | `@aAssistant.hypatia:matrix.inquiry.institute` |
+| Custodian | `@aCustodian.custodian:matrix.castalia.institute` |
+| Parliamentarian | `@aParliamentarian.parliamentarian:matrix.castalia.institute` |
+| Hypatia | `@aAssistant.hypatia:matrix.castalia.institute` |
 
 ### Directors (13)
 
 Director bots use the `aDirector.*` localpart convention (literary / college names in-repo):
 
-`@aDirector.a.alkhwarizmi`, `@aDirector.a.avicenna`, `@aDirector.a.daVinci`, `@aDirector.a.darwin`, `@aDirector.a.diogenes`, `@aDirector.a.katsushikaoi`, `@aDirector.a.maryshelley`, `@aDirector.a.shelley`, `@aDirector.a.polidori`, `@aDirector.a.byron`, `@aDirector.a.newton`, `@aDirector.a.plato`, `@aDirector.a.turing` — all on `matrix.inquiry.institute`.
+`@aDirector.a.alkhwarizmi`, `@aDirector.a.avicenna`, `@aDirector.a.daVinci`, `@aDirector.a.darwin`, `@aDirector.a.diogenes`, `@aDirector.a.katsushikaoi`, `@aDirector.a.maryshelley`, `@aDirector.a.shelley`, `@aDirector.a.polidori`, `@aDirector.a.byron`, `@aDirector.a.newton`, `@aDirector.a.plato`, `@aDirector.a.turing` — all on `matrix.castalia.institute`.
 
 > **Note:** An older naming scheme used `@aDirector.aetica`, `@aDirector.scholia`, etc. Those are **not** the IDs in `matrix-bot-credentials.json`; use the file as source of truth.
 
 ## Commands
 
 ```bash
-export MATRIX_SERVER=https://matrix.inquiry.institute
-export MATRIX_DOMAIN=matrix.inquiry.institute
+export MATRIX_SERVER=https://matrix.castalia.institute
+export MATRIX_DOMAIN=matrix.castalia.institute
 export ADMIN_USERNAME=...
 export ADMIN_PASSWORD=...
 

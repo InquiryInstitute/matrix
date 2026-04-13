@@ -34,7 +34,7 @@ Optional:
   configs/faculty_assistant.json — prepend_room_name, extra_request_fields merged into JSON body
 
 Room metadata (keeps the bot dumb; prompt logic lives in room state + ask-faculty):
-  Custom state event org.inquiry.institute.room_ai_context (override: ROOM_AI_EVENT_TYPE).
+  Custom state event org.castalia.institute.room_ai_context (override: ROOM_AI_EVENT_TYPE).
   See configs/room_ai_context.example.json and scripts/set-room-ai-metadata.py.
   Fields: prompt_prepend, prompt_append, context, extra_request_fields, header_overrides.
   Merged into the ask-faculty request (room overrides file/env for headers/body extras).
@@ -92,7 +92,7 @@ CONFIG_PATH = Path(__file__).resolve().parent.parent / "configs" / "faculty_assi
 FACULTY_NAMES_PATH = os.environ.get("FACULTY_NAMES_JSON", "").strip()
 
 ROOM_AI_EVENT_TYPE = os.environ.get(
-    "ROOM_AI_EVENT_TYPE", "org.inquiry.institute.room_ai_context"
+    "ROOM_AI_EVENT_TYPE", "org.castalia.institute.room_ai_context"
 ).strip()
 ROOM_AI_CACHE_TTL = float(os.environ.get("ROOM_AI_CACHE_TTL", "120"))
 

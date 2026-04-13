@@ -30,7 +30,7 @@ HOMESERVER_CONFIG="${MATRIX_DIR}/matrix-data/homeserver.yaml"
 SUPABASE_PROJECT_REF="${SUPABASE_PROJECT_REF:-}"
 SUPABASE_OIDC_CLIENT_ID="${SUPABASE_OIDC_CLIENT_ID:-}"
 SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY:-}"
-# Do not inherit MATRIX_SERVER_URL here — old values often point at matrix.inquiry.institute and break OIDC vs Supabase.
+# Do not inherit MATRIX_SERVER_URL here — old values often point at matrix.castalia.institute and break OIDC vs Supabase.
 SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL:-https://matrix.castalia.institute}"
 SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL%/}"
 

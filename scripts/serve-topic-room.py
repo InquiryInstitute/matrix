@@ -42,7 +42,7 @@ except ImportError:
 app = Flask(__name__)
 PORT = int(os.getenv("PORT", "5050"))
 ELEMENT_URL = os.getenv("ELEMENT_URL", "http://localhost:8080")
-# Optional: set CORS_ORIGIN (e.g. https://app.inquiry.institute) so web apps on that origin can call /create-room via fetch()
+# Optional: set CORS_ORIGIN (e.g. https://app.castalia.institute) so web apps on that origin can call /create-room via fetch()
 CORS_ORIGIN = os.getenv("CORS_ORIGIN", "").strip()
 
 

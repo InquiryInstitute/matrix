@@ -2,7 +2,7 @@
 """
 Set room-level AI metadata (custom Matrix state) read by matrix-faculty-assistant-bot.
 
-Event type: org.inquiry.institute.room_ai_context (empty state_key)
+Event type: org.castalia.institute.room_ai_context (empty state_key). Override with ROOM_AI_EVENT_TYPE if rooms still use the legacy type.
 Content: see configs/room_ai_context.example.json
 
 Usage:
@@ -30,12 +30,12 @@ except ImportError:
     print("pip install matrix-nio", file=sys.stderr)
     sys.exit(1)
 
-MATRIX_SERVER = os.environ.get("MATRIX_SERVER", "https://matrix.inquiry.institute").rstrip("/")
-MATRIX_DOMAIN = os.environ.get("MATRIX_DOMAIN", "matrix.inquiry.institute")
+MATRIX_SERVER = os.environ.get("MATRIX_SERVER", "https://matrix.castalia.institute").rstrip("/")
+MATRIX_DOMAIN = os.environ.get("MATRIX_DOMAIN", "matrix.castalia.institute")
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
 
-EVENT_TYPE = os.environ.get("ROOM_AI_EVENT_TYPE", "org.inquiry.institute.room_ai_context")
+EVENT_TYPE = os.environ.get("ROOM_AI_EVENT_TYPE", "org.castalia.institute.room_ai_context")
 
 
 async def main() -> None:

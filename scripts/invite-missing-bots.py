@@ -23,8 +23,8 @@ except ImportError:
     sys.exit(1)
 
 # Configuration
-MATRIX_SERVER = os.getenv("MATRIX_SERVER", "https://matrix.inquiry.institute").rstrip("/")
-MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.inquiry.institute")
+MATRIX_SERVER = os.getenv("MATRIX_SERVER", "https://matrix.castalia.institute").rstrip("/")
+MATRIX_SERVER_NAME = os.getenv("MATRIX_DOMAIN", "matrix.castalia.institute")
 # Prefer BOARD_ROOM_ID; else resolve #BOARD_ROOM_ALIAS:domain after login
 BOARD_ROOM_ID = os.getenv("BOARD_ROOM_ID", "").strip()
 BOARD_ROOM_ALIAS = os.getenv("BOARD_ROOM_ALIAS", "board-of-directors").strip()

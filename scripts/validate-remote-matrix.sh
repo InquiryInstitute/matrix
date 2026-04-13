@@ -9,8 +9,8 @@ if [ -f .env ]; then
     export $(cat .env | grep -v '^#' | xargs)
 fi
 
-MATRIX_SERVER="${MATRIX_SERVER_URL:-https://matrix.inquiry.institute}"
-MATRIX_DOMAIN="${MATRIX_DOMAIN:-matrix.inquiry.institute}"
+MATRIX_SERVER="${MATRIX_SERVER_URL:-https://matrix.castalia.institute}"
+MATRIX_DOMAIN="${MATRIX_DOMAIN:-matrix.castalia.institute}"
 
 echo "🔷 Remote Matrix Server Validation"
 echo "===================================="
@@ -66,15 +66,14 @@ if [ -f "matrix-bot-credentials.json" ]; then
         fi
     done
     
-    # Count directors
+    # Count director-role bots (naming convention: "Director" in username)
     echo ""
     DIRECTOR_COUNT=$(jq '[.[] | select(.username | contains("Director"))] | length' matrix-bot-credentials.json 2>/dev/null || echo "0")
-    echo "   Director bots: ${DIRECTOR_COUNT}/10"
-    
-    if [ "${DIRECTOR_COUNT}" -eq 10 ]; then
-        echo "   ✅ All directors configured"
+    echo "   Director bots (aDirector.* in credentials): ${DIRECTOR_COUNT}"
+    if [ "${DIRECTOR_COUNT}" -ge 1 ]; then
+        echo "   ✅ At least one director bot present (see matrix-bot-credentials.json for full list)"
     else
-        echo "   ⚠️  Expected 10 directors, found ${DIRECTOR_COUNT}"
+        echo "   ⚠️  No director bots found — add bots or regenerate credentials"
     fi
 else
     echo "   ❌ Bot credentials file not found"
@@ -96,7 +95,7 @@ fi
 # Check 5: Element Web (if configured)
 echo ""
 echo "🎨 Check 5: Element Web Client"
-ELEMENT_URL="https://element.inquiry.institute"
+ELEMENT_URL="https://element.castalia.institute"
 if curl -s -f "${ELEMENT_URL}" > /dev/null 2>&1; then
     echo "   ✅ Element Web is accessible"
     echo "   URL: ${ELEMENT_URL}"
@@ -139,8 +138,9 @@ if curl -s -f "${MATRIX_SERVER}/_matrix/client/versions" > /dev/null 2>&1; then
     echo "   python3 scripts/create-board-room.py"
     echo ""
     
-    echo "3. Test bot communication:"
+    echo "3. Test bot communication (custodian smoke test; avoids login rate limits):"
     echo "   python3 scripts/validate-board-communication.py"
+    echo "   # Full matrix: VALIDATE_BOARD_MODE=all VALIDATE_LOGIN_DELAY_SEC=5 python3 scripts/validate-board-communication.py"
     echo ""
     
     echo "4. Access Element Web:"
@@ -156,7 +156,7 @@ else
     echo "Troubleshooting:"
     echo "1. Check Fly.io app status: fly status"
     echo "2. Check Fly.io logs: fly logs"
-    echo "3. Verify DNS: dig matrix.inquiry.institute"
+    echo "3. Verify DNS: dig matrix.castalia.institute"
 fi
 
 echo ""

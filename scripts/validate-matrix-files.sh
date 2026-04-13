@@ -35,7 +35,7 @@ for file in "${REQUIRED_FILES[@]}"; do
                 fi
                 ;;
             "element-config.json")
-                if grep -q "matrix.inquiry.institute" "${INQUIRY_DIR}/${file}"; then
+                if grep -q "matrix.castalia.institute" "${INQUIRY_DIR}/${file}"; then
                     echo "      ✅ Contains Matrix domain"
                 else
                     echo "      ⚠️  Domain may not be configured"

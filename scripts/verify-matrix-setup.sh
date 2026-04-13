@@ -65,7 +65,7 @@ if [ -f "${HOMESERVER_CONFIG}" ]; then
     fi
 else
     echo "   ❌ homeserver.yaml not found"
-    echo "   → Generate with: docker run -it --rm -v ${MATRIX_DIR}/matrix-data:/data -e SYNAPSE_SERVER_NAME=matrix.inquiry.institute matrixdotorg/synapse:latest generate"
+    echo "   → Generate with: docker run -it --rm -v ${MATRIX_DIR}/matrix-data:/data -e SYNAPSE_SERVER_NAME=matrix.castalia.institute matrixdotorg/synapse:latest generate"
 fi
 
 # Check 4: Environment file
@@ -177,7 +177,7 @@ echo "   → Go to: https://supabase.com/dashboard/project/${SUPABASE_PROJECT_RE
 echo "   → Verify redirect URI is added:"
 echo "      http://localhost:8008/_synapse/client/oidc/callback"
 echo "   → For production also add:"
-echo "      https://matrix.inquiry.institute/_synapse/client/oidc/callback"
+echo "      https://matrix.castalia.institute/_synapse/client/oidc/callback"
 
 # Summary
 echo ""

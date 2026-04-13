@@ -37,24 +37,24 @@ python3 scripts/matrix-director-bot.py
 ## Bot Accounts
 
 ### Special Bots (3 total)
-1. **Custodian** - `@aCustodian.custodian:matrix.inquiry.institute`
+1. **Custodian** - `@aCustodian.custodian:matrix.castalia.institute`
    - Role: Manages board operations
-2. **Parliamentarian** - `@aParliamentarian.parliamentarian:matrix.inquiry.institute`
+2. **Parliamentarian** - `@aParliamentarian.parliamentarian:matrix.castalia.institute`
    - Role: Ensures proper procedures
-3. **Hypatia** - `@aAssistant.hypatia:matrix.inquiry.institute`
+3. **Hypatia** - `@aAssistant.hypatia:matrix.castalia.institute`
    - Role: Custodian assistant
 
 ### Directors (10 total)
-1. `@aDirector.aetica:matrix.inquiry.institute` - Ethics & Values
-2. `@aDirector.scholia:matrix.inquiry.institute` - Education & Learning
-3. `@aDirector.pedagogia:matrix.inquiry.institute` - Teaching Methods
-4. `@aDirector.machina:matrix.inquiry.institute` - Technology & AI
-5. `@aDirector.terra:matrix.inquiry.institute` - Environment & Sustainability
-6. `@aDirector.cultura:matrix.inquiry.institute` - Culture & Society
-7. `@aDirector.aureus:matrix.inquiry.institute` - Finance & Resources
-8. `@aDirector.fabrica:matrix.inquiry.institute` - Operations & Production
-9. `@aDirector.civitas:matrix.inquiry.institute` - Community & Governance
-10. `@aDirector.lex:matrix.inquiry.institute` - Legal & Compliance
+1. `@aDirector.aetica:matrix.castalia.institute` - Ethics & Values
+2. `@aDirector.scholia:matrix.castalia.institute` - Education & Learning
+3. `@aDirector.pedagogia:matrix.castalia.institute` - Teaching Methods
+4. `@aDirector.machina:matrix.castalia.institute` - Technology & AI
+5. `@aDirector.terra:matrix.castalia.institute` - Environment & Sustainability
+6. `@aDirector.cultura:matrix.castalia.institute` - Culture & Society
+7. `@aDirector.aureus:matrix.castalia.institute` - Finance & Resources
+8. `@aDirector.fabrica:matrix.castalia.institute` - Operations & Production
+9. `@aDirector.civitas:matrix.castalia.institute` - Community & Governance
+10. `@aDirector.lex:matrix.castalia.institute` - Legal & Compliance
 
 **Total Board Members: 13 bots**
 
