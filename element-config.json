@@ -1,4 +1,13 @@
 {
+  "disable_custom_urls": true,
+  "embedded_pages": {
+    "welcome_url": "https://login.castalia.institute/"
+  },
+  "sso_redirect_options": {
+    "immediate": false,
+    "on_welcome_page": false,
+    "on_login_page": false
+  },
   "default_server_config": {
     "m.homeserver": {
       "base_url": "https://matrix.castalia.institute",
