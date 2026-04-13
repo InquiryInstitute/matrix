@@ -71,8 +71,11 @@ services:
       retries: 3
 
   # Element Web Client (optional but recommended)
+  # Console: "Cannot access 'B' before initialization" in Widget* stores is a known upstream TDZ
+  # (element-hq/element-web#27606); often harmless. For local dev, point default_server_config base_url in
+  # element-config.json at your Synapse (e.g. http://localhost:8008) instead of the public URL.
   element-web:
-    image: vectorim/element-web:latest
+    image: vectorim/element-web:v1.12.15
     container_name: matrix-element
     restart: always
     depends_on:
@@ -81,6 +84,8 @@ services:
       - "8080:80"
     volumes:
       - ./element-config.json:/app/config.json:ro
+      # Hostname-specific config fetch (getconfig.ts); same file avoids 404 on custom domains.
+      - ./element-config.json:/app/config.element.castalia.institute.json:ro
     environment:
       VECTOR_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.inquiry.institute}
       DEFAULT_SERVER_URL: ${MATRIX_SERVER_URL:-http://localhost:8008}
