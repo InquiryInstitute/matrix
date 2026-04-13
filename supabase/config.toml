@@ -165,6 +165,7 @@ additional_redirect_urls = [
   "https://martech.castalia.institute",
   "https://martech.castalia.institute/**",
   "https://matrix.castalia.institute/_synapse/client/oidc/callback",
+  "https://matrix.inquiry.institute/_synapse/client/oidc/callback",
   "http://localhost:8008/_synapse/client/oidc/callback",
   "http://127.0.0.1:8008/_synapse/client/oidc/callback",
   "https://127.0.0.1:3000",

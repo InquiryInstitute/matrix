@@ -12,7 +12,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 MATRIX_DIR="${MATRIX_DIR:-$REPO_ROOT}"
 HOMESERVER_YAML="${1:-${MATRIX_DIR}/matrix-data/homeserver.yaml}"
-URL="${SYNAPSE_PUBLIC_BASEURL:-https://matrix.castalia.institute}"
+# Default must match homeserver server_name host when OIDC is used; split server_name vs
+# public_baseurl host breaks Synapse OIDC callback (400). Override when server_name migrates.
+URL="${SYNAPSE_PUBLIC_BASEURL:-https://matrix.inquiry.institute}"
 URL="${URL%/}"
 
 if [[ ! -f "${HOMESERVER_YAML}" ]]; then

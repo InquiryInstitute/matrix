@@ -53,7 +53,8 @@ services:
     volumes:
       - ./matrix-data:/data
     environment:
-      SYNAPSE_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.castalia.institute}
+      # Must match server_name in matrix-data/homeserver.yaml (DB-bound). OIDC breaks if public_baseurl host != this.
+      SYNAPSE_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.inquiry.institute}
       SYNAPSE_REPORT_STATS: ${SYNAPSE_REPORT_STATS:-no}
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
@@ -87,9 +88,9 @@ services:
       # Hostname-specific config fetch (getconfig.ts); same file avoids 404 on custom domains.
       - ./element-config.json:/app/config.element.castalia.institute.json:ro
     environment:
-      VECTOR_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.castalia.institute}
-      # Client API URL for well-known; use Castalia hostname in prod (must match Synapse public_baseurl + Supabase OAuth redirect).
-      DEFAULT_SERVER_URL: ${MATRIX_SERVER_URL:-https://matrix.castalia.institute}
+      VECTOR_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.inquiry.institute}
+      # Must match Synapse public_baseurl (see homeserver.yaml); OIDC callback validates against this host.
+      DEFAULT_SERVER_URL: ${MATRIX_SERVER_URL:-https://matrix.inquiry.institute}
     networks:
       - matrix-network
 

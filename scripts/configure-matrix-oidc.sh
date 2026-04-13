@@ -31,7 +31,8 @@ SUPABASE_PROJECT_REF="${SUPABASE_PROJECT_REF:-}"
 SUPABASE_OIDC_CLIENT_ID="${SUPABASE_OIDC_CLIENT_ID:-}"
 SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY:-}"
 # Do not inherit MATRIX_SERVER_URL here — old values often point at matrix.castalia.institute and break OIDC vs Supabase.
-SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL:-https://matrix.castalia.institute}"
+# Use the same host as server_name until Synapse is migrated; split host breaks OIDC callback (400).
+SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL:-https://matrix.inquiry.institute}"
 SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL%/}"
 
 OIDC_IDP_NAME="${OIDC_IDP_NAME:-Castalia}"

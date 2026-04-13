@@ -2,7 +2,7 @@
 
 Element does **not** talk to Supabase directly. The supported pattern is:
 
-1. **Element Web** (e.g. `https://element.castalia.institute`) loads its config and defaults to homeserver **`https://matrix.castalia.institute`**.
+1. **Element Web** (e.g. `https://element.castalia.institute`) loads its config and defaults to the homeserver **`public_baseurl`** (often **`https://matrix.inquiry.institute`** until the Synapse DB `server_name` is migrated — see §2).
 2. **Synapse** on that URL is configured with **`oidc_providers`** pointing at **Supabase Auth** (OpenID Connect).
 3. The user clicks **Sign in with …** (SSO) in Element; Synapse redirects to Supabase, then back to Synapse’s OIDC callback; Synapse issues the Matrix session.
 
@@ -20,7 +20,8 @@ In the Supabase Dashboard:
 2. **Client type**: **Public** (Synapse uses PKCE; no client secret on the homeserver).
 3. **Redirect URIs**: add the Synapse callback **exactly** (no trailing slash unless Synapse sends one):
 
-   - `https://matrix.castalia.institute/_synapse/client/oidc/callback`
+   - `https://matrix.inquiry.institute/_synapse/client/oidc/callback` (must match live **`public_baseurl`**)
+   - Optionally also `https://matrix.castalia.institute/...` if you test that host before migrating **`server_name`**.
 
    Each homeserver **public_baseurl** you use needs its callback registered on **this OAuth client**.
 
@@ -53,15 +54,15 @@ This repo includes **`supabase/config.toml`**. The **`[auth]`** section sets **`
 
 ## 2. Synapse (`homeserver.yaml`)
 
-- **`public_baseurl`**: `https://matrix.castalia.institute`
-- **`server_name`**: must match the deployment (often `matrix.castalia.institute` if that is your Matrix hostname).
+- **`server_name`**: Baked into the database and MXIDs (e.g. `matrix.inquiry.institute`). Changing it later is a **major migration** — do not set **`public_baseurl`** to a *different* hostname than Synapse expects for OIDC session validation, or **`/_synapse/client/oidc/callback`** returns **400** after Supabase redirects with a `code`.
+- **`public_baseurl`**: Must be the **HTTPS URL browsers use for the Client-Server API**, and it must stay consistent with how Synapse binds the OIDC session. Until you officially rename the homeserver, keep **`public_baseurl`** on the **same host as `server_name`**, e.g. `https://matrix.inquiry.institute`.
 
 Run from the machine that has `matrix-data/homeserver.yaml` (or set `MATRIX_DIR`):
 
 ```bash
 export SUPABASE_PROJECT_REF="your-project-ref"
 export SUPABASE_OIDC_CLIENT_ID="uuid-from-oauth-apps"   # not the anon JWT
-export SYNAPSE_PUBLIC_BASEURL="https://matrix.castalia.institute"
+export SYNAPSE_PUBLIC_BASEURL="https://matrix.inquiry.institute"
 export OIDC_IDP_NAME="Castalia"
 export OIDC_IDP_BRAND="castalia.institute"
 ./scripts/configure-matrix-oidc.sh
@@ -75,6 +76,10 @@ See **`scripts/configure-matrix-oidc.sh`** for the YAML it appends (`client_auth
 - **Wrong `client_id`**: Use the **OAuth App** Client ID from §1a, not the anon key.
 - **Wrong `redirect_uri`**: Must match an OAuth App redirect URI **exactly** (scheme, host, path).
 - **Response body**: Open DevTools → Network → failed request → JSON often includes `error` / `error_description`.
+
+### Troubleshooting: 400 on `…/_synapse/client/oidc/callback?code=…`
+
+Usually **`public_baseurl` host ≠ `server_name` host** (e.g. Castalia URL in **`public_baseurl`** but DB still **`matrix.inquiry.institute`**). Synapse’s OIDC session cookie is tied to the configured homeserver identity; fix by setting **`public_baseurl`** to **`https://<server_name>`** (and register that callback on the Supabase OAuth App), then `docker compose restart synapse`. See **`scripts/patch-synapse-public-baseurl.sh`**.
 
 ## 3. Element Web (Docker / static host)
 
