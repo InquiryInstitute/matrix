@@ -1,159 +1,168 @@
-#!/bin/bash
-# Configure Matrix Synapse with Supabase OIDC authentication
+#!/usr/bin/env bash
+# Append Synapse oidc_providers for Supabase Auth (OpenID Connect).
+# Element Web signs in via the homeserver: user chooses SSO → Synapse → Supabase → callback.
+#
+# Environment (optional; load from repo .env via load-dotenv.sh):
+#   SUPABASE_PROJECT_REF   — e.g. xougqdomkoisrxdnagcj (required)
+#   SUPABASE_OIDC_CLIENT_ID — OAuth App client ID from Supabase (Authentication → OAuth Apps).
+#                             Required when the project uses OAuth 2.1 as IdP (recommended).
+#   SUPABASE_ANON_KEY       — Legacy: anon JWT was used as client_id; often INVALID with OAuth 2.1.
+#   SYNAPSE_PUBLIC_BASEURL — public Synapse URL, e.g. https://matrix.castalia.institute
+#   MATRIX_DIR             — repo root with matrix-data/ (default: parent of scripts/)
+#   OIDC_IDP_NAME          — button label, default "Castalia"
+#   OIDC_IDP_BRAND         — idp_brand field, default "castalia.institute"
+#   OIDC_NON_INTERACTIVE   — if 1, do not prompt (fail if anon key missing)
+#
+# Supabase (OAuth 2.1): Authentication → OAuth Apps → register a *public* client with redirect URI
+#   ${SYNAPSE_PUBLIC_BASEURL}/_synapse/client/oidc/callback
+# (exact string; not the same as general "Redirect URLs" for magic links).
+#
+set -euo pipefail
 
-set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/load-dotenv.sh"
 
-MATRIX_DIR="${HOME}/GitHub/matrix"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+MATRIX_DIR="${MATRIX_DIR:-$REPO_ROOT}"
 HOMESERVER_CONFIG="${MATRIX_DIR}/matrix-data/homeserver.yaml"
-TEMPLATE_FILE="${HOME}/GitHub/Inquiry.Institute/matrix-homeserver-oidc.yaml.template"
 
-SUPABASE_PROJECT_REF="xougqdomkoisrxdnagcj"
+SUPABASE_PROJECT_REF="${SUPABASE_PROJECT_REF:-}"
+SUPABASE_OIDC_CLIENT_ID="${SUPABASE_OIDC_CLIENT_ID:-}"
+SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY:-}"
+SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL:-}"
+SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL:-${MATRIX_SERVER_URL:-}}"
+SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL:-https://matrix.inquiry.institute}"
+SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL%/}"
+
+OIDC_IDP_NAME="${OIDC_IDP_NAME:-Castalia}"
+OIDC_IDP_BRAND="${OIDC_IDP_BRAND:-castalia.institute}"
+
+echo "🔷 Configure Synapse OIDC (Supabase Auth)"
+echo "   homeserver.yaml: ${HOMESERVER_CONFIG}"
+echo "   Public base URL (redirects): ${SYNAPSE_PUBLIC_BASEURL}"
+echo ""
+
+if [[ ! -f "${HOMESERVER_CONFIG}" ]]; then
+  echo "❌ homeserver.yaml not found: ${HOMESERVER_CONFIG}" >&2
+  echo "   Set MATRIX_DIR or generate Synapse config first." >&2
+  exit 1
+fi
+
+if [[ -z "${SUPABASE_PROJECT_REF}" ]]; then
+  read -r -p "Supabase project ref (from project URL): " SUPABASE_PROJECT_REF
+fi
+if [[ -z "${SUPABASE_PROJECT_REF}" ]]; then
+  echo "❌ SUPABASE_PROJECT_REF is required" >&2
+  exit 1
+fi
+
 SUPABASE_DISCOVERY_URL="https://${SUPABASE_PROJECT_REF}.supabase.co/auth/v1/.well-known/openid-configuration"
+# Issuer must match Supabase OIDC discovery document (typically .../auth/v1)
+ISSUER="https://${SUPABASE_PROJECT_REF}.supabase.co/auth/v1"
 
-echo "🔷 Configuring Matrix Synapse with Supabase OIDC"
-echo ""
-
-# Check if homeserver.yaml exists
-if [ ! -f "${HOMESERVER_CONFIG}" ]; then
-    echo "❌ homeserver.yaml not found at ${HOMESERVER_CONFIG}"
-    echo "   Run setup-matrix.sh first to generate configuration"
+if [[ -z "${SUPABASE_OIDC_CLIENT_ID}" && -z "${SUPABASE_ANON_KEY}" ]]; then
+  if [[ "${OIDC_NON_INTERACTIVE:-}" == "1" ]]; then
+    echo "❌ Set SUPABASE_OIDC_CLIENT_ID (OAuth Apps client ID) or legacy SUPABASE_ANON_KEY." >&2
     exit 1
+  fi
+  echo "Prefer SUPABASE_OIDC_CLIENT_ID: Supabase → Authentication → OAuth Apps → your Matrix client → Client ID (UUID)."
+  echo "Legacy fallback: anon JWT from Project Settings → API (may return 400 if OAuth 2.1 is enabled)."
+  read -r -p "OAuth client ID (or paste anon key for legacy): " SUPABASE_OIDC_CLIENT_ID
 fi
 
-# Check if template exists
-if [ ! -f "${TEMPLATE_FILE}" ]; then
-    echo "⚠️  Template file not found at ${TEMPLATE_FILE}"
-    echo "   Using inline configuration instead"
+OIDC_CLIENT_ID="${SUPABASE_OIDC_CLIENT_ID:-${SUPABASE_ANON_KEY:-}}"
+if [[ -z "${OIDC_CLIENT_ID}" ]]; then
+  echo "❌ No client id: set SUPABASE_OIDC_CLIENT_ID or SUPABASE_ANON_KEY" >&2
+  exit 1
 fi
 
-# Get Supabase anon key
-echo "📋 Step 1: Get Supabase Anon Key (Client ID)"
-echo "   Go to: https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/settings/api"
-echo "   Copy the 'anon (public) key'"
+if [[ "${OIDC_CLIENT_ID}" == eyJ* ]]; then
+  echo "⚠️  client_id looks like a JWT (legacy anon key). If https://.../auth/v1/oauth/authorize returns 400, register an OAuth App (public) and set SUPABASE_OIDC_CLIENT_ID to that client UUID." >&2
+fi
+
 echo ""
-read -p "Enter Supabase anon key: " SUPABASE_ANON_KEY
-
-if [ -z "${SUPABASE_ANON_KEY}" ]; then
-    echo "❌ Supabase anon key is required"
-    exit 1
-fi
-
-# Verify OIDC endpoints
-echo ""
-echo "🔍 Step 2: Verifying Supabase OIDC endpoints..."
-if curl -s "${SUPABASE_DISCOVERY_URL}" > /dev/null; then
-    echo "✅ Discovery endpoint is accessible"
+echo "🔍 Checking OIDC discovery..."
+if curl -fsS -m 15 "${SUPABASE_DISCOVERY_URL}" -o /dev/null; then
+  echo "   ✅ ${SUPABASE_DISCOVERY_URL}"
 else
-    echo "⚠️  Could not reach discovery endpoint"
-    echo "   URL: ${SUPABASE_DISCOVERY_URL}"
-    echo "   Continuing anyway..."
+  echo "   ⚠️  Could not fetch discovery (offline or wrong project ref). Continuing." >&2
 fi
 
-# Create backup
+CALLBACK_PATH="/_synapse/client/oidc/callback"
+REDIRECT_URI="${SYNAPSE_PUBLIC_BASEURL}${CALLBACK_PATH}"
+
 echo ""
-echo "💾 Step 3: Creating backup of homeserver.yaml..."
+echo "💾 Backup homeserver.yaml..."
 cp "${HOMESERVER_CONFIG}" "${HOMESERVER_CONFIG}.backup.$(date +%Y%m%d_%H%M%S)"
-echo "✅ Backup created"
 
-# Generate OIDC configuration
+if grep -q "^oidc_providers:" "${HOMESERVER_CONFIG}"; then
+  echo ""
+  echo "⚠️  oidc_providers already present in ${HOMESERVER_CONFIG}"
+  if [[ "${OIDC_NON_INTERACTIVE:-}" == "1" ]]; then
+    echo "❌ Refusing to duplicate OIDC in non-interactive mode" >&2
+    exit 1
+  fi
+  read -r -p "Remove previous # Supabase OIDC block and replace? (y/N): " REPLACE
+  if [[ "${REPLACE}" == "y" || "${REPLACE}" == "Y" ]]; then
+    # Remove block between our markers if present; else warn
+    if grep -q "# --- Supabase OIDC (matrix repo) ---" "${HOMESERVER_CONFIG}"; then
+      sed -i.bak '/# --- Supabase OIDC (matrix repo) ---/,/# --- end Supabase OIDC ---/d' "${HOMESERVER_CONFIG}"
+    else
+      echo "❌ No marked block to remove. Edit homeserver.yaml manually, then re-run." >&2
+      exit 1
+    fi
+  else
+    exit 0
+  fi
+fi
+
 echo ""
-echo "⚙️  Step 4: Generating OIDC configuration..."
+echo "⚙️  Appending oidc_providers..."
 
-OIDC_CONFIG=$(cat <<EOF
-# Supabase OIDC Provider Configuration (Auto-generated)
+{
+  cat <<EOF
+
+# --- Supabase OIDC (matrix repo) ---
 oidc_providers:
   - idp_id: supabase
-    idp_name: "Inquiry Institute"
-    idp_brand: "inquiry.institute"
-    
-    # Supabase OIDC Discovery Endpoint
+    idp_name: "${OIDC_IDP_NAME}"
+    idp_brand: "${OIDC_IDP_BRAND}"
     discover: true
-    issuer: "https://${SUPABASE_PROJECT_REF}.supabase.co"
-    
-    # Client ID (Supabase anon key)
-    client_id: "${SUPABASE_ANON_KEY}"
-    
-    # Supabase uses public client flow (no client secret needed)
-    client_secret: null
-    
-    # Scopes to request
+    issuer: "${ISSUER}"
+    client_id: "${OIDC_CLIENT_ID}"
+    client_auth_method: none
+    pkce_method: always
     scopes: ["openid", "profile", "email"]
-    
-    # User attribute mapping
     user_mapping_provider:
       config:
-        localpart_template: "{{user.preferred_username}}"
-        display_name_template: "{{user.name}}"
-        email_template: "{{user.email}}"
-        extra_attributes:
-          picture: "{{user.picture}}"
-    
-    # Allow linking existing accounts
+        subject_claim: "sub"
+        localpart_template: "{{ user.email.split('@')[0]|lower|replace('.', '_') }}"
+        display_name_template: "{{ user.name|default(user.email) }}"
+        email_template: "{{ user.email }}"
     allow_existing_users: true
-
-# Disable open registration, use OIDC only
-enable_registration: false
+# --- end Supabase OIDC ---
 EOF
-)
+} >> "${HOMESERVER_CONFIG}"
 
-# Check if OIDC config already exists
-if grep -q "oidc_providers:" "${HOMESERVER_CONFIG}"; then
-    echo "⚠️  OIDC configuration already exists in homeserver.yaml"
-    read -p "Replace existing OIDC config? (y/N): " REPLACE
-    if [ "${REPLACE}" = "y" ] || [ "${REPLACE}" = "Y" ]; then
-        # Remove old OIDC config
-        sed -i.bak '/^# Supabase OIDC/,/^enable_registration: false/d' "${HOMESERVER_CONFIG}"
-        echo "✅ Removed old OIDC configuration"
-    else
-        echo "ℹ️  Keeping existing configuration"
-        echo ""
-        echo "📝 Current OIDC configuration:"
-        grep -A 20 "oidc_providers:" "${HOMESERVER_CONFIG}" || echo "   (not found)"
-        exit 0
-    fi
-fi
-
-# Append OIDC config to homeserver.yaml
-echo "${OIDC_CONFIG}" >> "${HOMESERVER_CONFIG}"
-echo "✅ OIDC configuration added to homeserver.yaml"
-
-# Configure redirect URI
+echo "✅ Appended OIDC provider (issuer: ${ISSUER})"
 echo ""
-echo "🔗 Step 5: Configure Redirect URI in Supabase"
-echo "   Go to: https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/auth/url-configuration"
+echo "🔗 Register this redirect on an OAuth App (Authentication → OAuth Apps → Public client):"
+echo "   ${REDIRECT_URI}"
+echo "   General Auth redirect URLs (supabase/config.toml additional_redirect_urls) are separate; both may be needed."
+echo "   CLI: ./scripts/supabase-config-push.sh"
 echo ""
-echo "   Add this redirect URI:"
-if [ "${MATRIX_DOMAIN:-}" = "matrix.inquiry.institute" ]; then
-    echo "   https://matrix.inquiry.institute/_synapse/client/oidc/callback"
-else
-    echo "   http://localhost:8008/_synapse/client/oidc/callback"
-    echo ""
-    echo "   For production, also add:"
-    echo "   https://matrix.inquiry.institute/_synapse/client/oidc/callback"
-fi
+echo "🚀 Restart Synapse, then open Element → sign in → SSO (${OIDC_IDP_NAME})."
+echo "   MATRIX_DIR=${MATRIX_DIR}"
+echo "   Example: cd \"${MATRIX_DIR}\" && docker compose restart synapse"
 echo ""
-read -p "Have you added the redirect URI in Supabase? (y/N): " REDIRECT_ADDED
-
-if [ "${REDIRECT_ADDED}" != "y" ] && [ "${REDIRECT_ADDED}" != "Y" ]; then
-    echo "⚠️  Please add the redirect URI before testing OIDC login"
-fi
-
-# Summary
+echo "📚 Castalia + Element: see CASTALIA_ELEMENT_SUPABASE.md and configs/element-config.castalia.example.json"
 echo ""
-echo "✅ OIDC Configuration Complete!"
-echo ""
-echo "📋 Configuration Summary:"
-echo "   OIDC Provider: Supabase (Inquiry Institute)"
-echo "   Discovery URL: ${SUPABASE_DISCOVERY_URL}"
-echo "   Client ID: ${SUPABASE_ANON_KEY:0:20}... (truncated)"
-echo "   Config file: ${HOMESERVER_CONFIG}"
-echo "   Backup: ${HOMESERVER_CONFIG}.backup.*"
-echo ""
-echo "🚀 Next Steps:"
-echo "1. Verify redirect URI is added in Supabase (see above)"
-echo "2. Restart Synapse: cd ${MATRIX_DIR} && docker-compose restart synapse"
-echo "3. Test OIDC login in Element Web: http://localhost:8080"
-echo "4. Look for 'Sign in with Inquiry Institute' button"
-echo ""
-echo "📚 For detailed documentation, see:"
-echo "   ${HOME}/GitHub/Inquiry.Institute/MATRIX_SUPABASE_OIDC_SETUP.md"
+echo "🛠  If GET ${SYNAPSE_PUBLIC_BASEURL}${CALLBACK_PATH}?code=... returns 400:"
+echo "   1) Supabase → Authentication → OAuth Apps (your public client): redirect URI must be EXACTLY:"
+echo "      ${REDIRECT_URI}"
+echo "   2) Synapse homeserver.yaml: public_baseurl must match that host (https, no trailing slash on path)."
+echo "   3) User must start SSO from Element (Sign in with SSO), not by opening the callback URL alone —"
+echo "      Synapse needs the OIDC session cookie set at flow start."
+echo "   4) Check Synapse logs: docker compose logs synapse --tail=80  (token exchange / redirect_uri errors)."
+echo "   5) client_id in oidc_providers must be the OAuth App Client ID (UUID), not the anon JWT."
