@@ -5,12 +5,16 @@ set -euo pipefail
 
 MATRIX_DIR="${MATRIX_DIR:-/opt/matrix}"
 MATRIX_DOMAIN="${MATRIX_DOMAIN:-matrix.inquiry.institute}"
+# Client-visible URL (TLS hostname). OIDC redirect_uri uses this — must match Supabase OAuth App (usually matrix.castalia.institute).
+SYNAPSE_PUBLIC_BASEURL="${SYNAPSE_PUBLIC_BASEURL:-https://matrix.castalia.institute}"
 # Optional: CalDAV on same host (docker compose publishes 127.0.0.1:18080 — see cal.inquiry.institute repo).
 CAL_DOMAIN="${CAL_DOMAIN:-cal.castalia.institute}"
 # Optional: extra hostnames for the same Synapse (TLS + proxy). Comma-separated, e.g. matrix.castalia.institute
 MATRIX_EXTRA_DOMAINS="${MATRIX_EXTRA_DOMAINS:-}"
+# Optional: Element Web hostnames (same VM; docker publishes 127.0.0.1:8080). e.g. element.castalia.institute
+ELEMENT_EXTRA_DOMAINS="${ELEMENT_EXTRA_DOMAINS:-}"
 REPO_URL="${MATRIX_REPO_URL:-https://github.com/InquiryInstitute/matrix.git}"
-export MATRIX_DIR MATRIX_DOMAIN CAL_DOMAIN MATRIX_EXTRA_DOMAINS
+export MATRIX_DIR MATRIX_DOMAIN CAL_DOMAIN MATRIX_EXTRA_DOMAINS ELEMENT_EXTRA_DOMAINS
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -36,7 +40,8 @@ cat > .env <<EOF
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 REDIS_PASSWORD=${REDIS_PASSWORD}
 MATRIX_DOMAIN=${MATRIX_DOMAIN}
-MATRIX_SERVER_URL=https://${MATRIX_DOMAIN}
+SYNAPSE_PUBLIC_BASEURL=${SYNAPSE_PUBLIC_BASEURL}
+MATRIX_SERVER_URL=${SYNAPSE_PUBLIC_BASEURL}
 SYNAPSE_REPORT_STATS=no
 EOF
 chmod 600 .env
@@ -51,6 +56,10 @@ chown -R 991:991 matrix-data 2>/dev/null || chmod -R 777 matrix-data
 # Bind published 8008 to localhost so Caddy can use :443 (and optional :8448) on the host.
 if grep -q '8008:8008' docker-compose.yml && ! grep -q '127.0.0.1:8008:8008' docker-compose.yml; then
   sed -i 's/- "8008:8008"/- "127.0.0.1:8008:8008"/' docker-compose.yml
+fi
+# Element Web: bind to localhost so Caddy can terminate TLS on 443.
+if grep -q '8080:80' docker-compose.yml && ! grep -q '127.0.0.1:8080:80' docker-compose.yml; then
+  sed -i 's/- "8080:80"/- "127.0.0.1:8080:80"/' docker-compose.yml
 fi
 # Drop host publish of 8448 if present (federation uses 8008 in generated config).
 sed -i '/8448:8448/d' docker-compose.yml || true
@@ -83,7 +92,9 @@ path = os.path.join(os.environ["MATRIX_DIR"], "matrix-data", "homeserver.yaml")
 with open(path) as f:
     data = yaml.safe_load(f)
 
-data["public_baseurl"] = f"https://{os.environ['MATRIX_DOMAIN']}"
+data["public_baseurl"] = os.environ.get(
+    "SYNAPSE_PUBLIC_BASEURL", "https://matrix.castalia.institute"
+)
 data["database"] = {
     "name": "psycopg2",
     "args": {
@@ -137,10 +148,24 @@ if [[ -n "${MATRIX_EXTRA_DOMAINS// }" ]]; then
   IFS=$_IFS
 fi
 
+# Element Web on extra hostnames (Caddy → vectorim/element-web on 8080)
+if [[ -n "${ELEMENT_EXTRA_DOMAINS// }" ]]; then
+  _IFS=$IFS
+  IFS=','
+  for _host in ${ELEMENT_EXTRA_DOMAINS}; do
+    _host=$(echo "${_host}" | tr -d '[:space:]')
+    [[ -z "${_host}" ]] && continue
+    printf '%s {\n  reverse_proxy 127.0.0.1:8080\n}\n' "${_host}" >> "${MATRIX_DIR}/Caddyfile"
+  done
+  IFS=$_IFS
+fi
+
 docker rm -f caddy 2>/dev/null || true
 docker pull caddy:2-alpine
+mkdir -p "${MATRIX_DIR}/web/castalia-institute"
 docker run -d --name caddy --restart always --network host \
   -v "${MATRIX_DIR}/Caddyfile:/etc/caddy/Caddyfile:ro" \
+  -v "${MATRIX_DIR}/web/castalia-institute:/srv/castalia:ro" \
   caddy:2-alpine
 
 curl -fsS "http://127.0.0.1:8008/_matrix/client/versions" | head -c 200 || true

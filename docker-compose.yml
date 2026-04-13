@@ -88,7 +88,8 @@ services:
       - ./element-config.json:/app/config.element.castalia.institute.json:ro
     environment:
       VECTOR_SERVER_NAME: ${MATRIX_DOMAIN:-matrix.inquiry.institute}
-      DEFAULT_SERVER_URL: ${MATRIX_SERVER_URL:-http://localhost:8008}
+      # Client API URL for well-known; use Castalia hostname in prod (must match Synapse public_baseurl + Supabase OAuth redirect).
+      DEFAULT_SERVER_URL: ${MATRIX_SERVER_URL:-https://matrix.castalia.institute}
     networks:
       - matrix-network
 
