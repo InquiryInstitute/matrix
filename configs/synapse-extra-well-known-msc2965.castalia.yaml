@@ -1,0 +1,17 @@
+# Optional fragment: merge into matrix-data/homeserver.yaml on the Castalia Synapse host.
+# Exposes org.matrix.msc2965.authentication so native OIDC clients (Third Room / Hydrogen, some Element
+# builds) discover the Supabase issuer without using the web SSO redirect flow.
+#
+# Issuer must match:
+#   - jwt_issuer in supabase/config.toml (this repo)
+#   - Supabase Dashboard → Authentication → OAuth Apps → same project
+#
+# After merging: docker compose restart synapse
+#
+# Validate:
+#   curl -sS https://matrix.castalia.institute/.well-known/matrix/client | jq .
+
+extra_well_known_client_content:
+  org.matrix.msc2965.authentication:
+    issuer: "https://pilmscrodlitdrygabvo.supabase.co/auth/v1"
+    account: "https://castalia.institute/"

@@ -51,6 +51,22 @@ This repo includes **`supabase/config.toml`**. The **`[auth]`** section sets **`
 
 **Authentication → URL configuration** — keep **Site URL** and any app redirects you need; this does **not** replace §1a for Synapse OIDC.
 
+### Supabase CLI (hosted Auth `config.toml`)
+
+Use the CLI to **link** the repo and **push** `[auth]` settings (including **`additional_redirect_urls`** for Matrix callbacks):
+
+```bash
+# once: brew install supabase/tap/supabase && supabase login
+export SUPABASE_PROJECT_REF=pilmscrodlitdrygabvo   # or set in .env
+
+./scripts/supabase-cli-matrix.sh doctor    # curl OIDC discovery + reminders
+./scripts/supabase-cli-matrix.sh push-config
+```
+
+Same as **`./scripts/supabase-config-push.sh`** (loads `.env`). Pushing updates **general** Auth redirect allow-list in **`supabase/config.toml`**; the **OAuth App** redirect URIs in the Dashboard (§1a) are still required for the code/PKCE flow.
+
+**Hosted Auth error logs** (e.g. **500** on `/oauth/token`) are viewed in **Dashboard → Logs**, not via the CLI today.
+
 ## 2. Synapse (`homeserver.yaml`)
 
 - **`server_name`** and **`public_baseurl`** must use the **same hostname** (e.g. `matrix.castalia.institute`). Synapse OIDC macaroons use `server_name` as location; **`public_baseurl`** drives the OAuth **`redirect_uri`**. If they diverge, **`/_synapse/client/oidc/callback`** can return **400**.
@@ -78,12 +94,41 @@ See **`scripts/configure-matrix-oidc.sh`** for the YAML it appends (`client_auth
 
 ### Troubleshooting: 400 on `…/_synapse/client/oidc/callback?code=…`
 
-Usually **`public_baseurl` host ≠ `server_name` host**, or **`server_name` in `homeserver.yaml` ≠ MXID domain in Postgres**. Align **`server_name`**, **`public_baseurl`**, DB user IDs, and Supabase OAuth redirect URIs; then `docker compose restart synapse`. See **`scripts/patch-synapse-public-baseurl.sh`** and **`scripts/migrate-synapse-domain-minimal.sql`**.
+**First, read Synapse logs** (`docker compose logs synapse` on the Matrix host) for the exact line after `Received OIDC callback`.
+
+1. **`POST https://<project>.supabase.co/auth/v1/oauth/token: 500`** (often shows as **500** or **400** on `/_synapse/client/oidc/callback` in the browser)  
+   Supabase returned **500** while exchanging the code for tokens. Synapse then shows an error page on the callback URL instead of redirecting to Element. This is **not** fixed by Element `sso_redirect_options` — the failure is on **Supabase** (token endpoint).
+
+   **On the Matrix VM:**  
+   `sudo docker compose logs synapse --tail 100 | grep -E 'oauth/token|oidc|callback'`  
+   You should see `Received response to POST …/oauth/token: 500` and `Could not exchange OAuth2 code`.
+
+   **In Supabase:** open **Dashboard → Logs** (filter **Auth** / **API**, same minute as login) and read the stack trace for **`/auth/v1/oauth/token`**. Typical fixes:
+   - **Authentication → OAuth Apps**: **Public** client, redirect URI **exactly** `https://matrix.castalia.institute/_synapse/client/oidc/callback`, **Client ID** matches Synapse `oidc_providers.client_id`.
+   - If **OAuth Server** / consent flows are enabled, ensure consent URL and **[auth.oauth_server]** settings match [Supabase OAuth server docs](https://supabase.com/docs/guides/auth/oauth-server); misconfiguration often surfaces as **500** on token exchange.
+   - **Project pause**, Auth version regressions, or IdP bugs — use Supabase status / support if logs show an internal error with no clear config fix.
+
+2. **No 500 from Supabase** — then usual causes are **`public_baseurl` host ≠ `server_name` host**, or **`server_name` in `homeserver.yaml` ≠ MXID domain in Postgres**. Align **`server_name`**, **`public_baseurl`**, DB user IDs, and Supabase OAuth redirect URIs; then `docker compose restart synapse`. See **`scripts/patch-synapse-public-baseurl.sh`** and **`scripts/migrate-synapse-domain-minimal.sql`**.
+
+### “500 on Matrix” — which service is failing?
+
+The browser often shows **`https://matrix…/_synapse/client/oidc/callback`** with **500** even when the root cause is **not** Synapse: Synapse proxies the OAuth code exchange and surfaces failures as an error page on that URL.
+
+**Use DevTools → Network (Preserve log)** and find the failing request:
+
+| Failed request | Meaning | What to fix |
+|----------------|---------|-------------|
+| **`POST …supabase.co/auth/v1/oauth/token` → 500** | **Supabase GoTrue** failed during code→token exchange | **Dashboard → Logs → Auth** (same timestamp). Check **`jwt_issuer`**, **OAuth App** redirect URI + **client_id** = Synapse, **[auth.oauth_server]** / consent if enabled, **Auth hooks** (custom token / before-user hooks) throwing. |
+| **`GET …matrix…/oidc/callback` → 500** and **no** failed `oauth/token` row | **Synapse** crashed or errored after receiving tokens | **Synapse logs** on the VM: Python **traceback**, **MappingException**, DB errors (often **user_mapping_provider** / missing **email** in userinfo). |
+| **`POST …/oauth/token` → 400** | Bad `redirect_uri`, PKCE, `client_id`, or expired code | Synapse logs usually say **invalid_grant** / **redirect_uri**; align OAuth App + **`public_baseurl`**. |
+
+Repo helper (no secrets): **`./scripts/diagnose-matrix-sso.sh`** — compares **`jwt_issuer`** to live discovery and smoke-tests the token URL.
 
 ## 3. Element Web (Docker / static host)
 
 - Deploy **`configs/element-config.castalia.example.json`** as **`config.json`** for the Element container (path depends on image; this repo’s compose mounts `./element-config.json`).
 - **`server_name`** in that file must match Synapse’s **`server_name`**.
+- **`sso_redirect_options`:** With **`embedded_pages.welcome_url`** (Castalia landing in Element), set **`on_welcome_page`** and **`on_login_page`** to **`true`**. If they are **`false`**, users can get stuck on **“Completing sign-in…”** after OIDC because Element does not run the SSO return / `loginToken` handoff in the welcome context ([Element config example](https://github.com/element-hq/element-web/blob/develop/docs/config.md)). Redeploy Element after changing `config.json`.
 
 ## 4. Caddy / TLS
 
@@ -93,3 +138,35 @@ Usually **`public_baseurl` host ≠ `server_name` host**, or **`server_name` in 
 ## 5. Optional: password + OIDC
 
 Keeping **local password** login alongside OIDC requires leaving **`password_config`** enabled in Synapse and **not** relying only on `enable_registration: false` without reviewing policy. The configure script only adds **OIDC**; tighten registration in Synapse explicitly if needed.
+
+## 6. Third Room (Hydrogen) — native Supabase OIDC
+
+Third Room uses **native OIDC** (not Synapse `m.login.sso` / web redirect). It reads **`org.matrix.msc2965.authentication`** from **`/.well-known/matrix/client`** on the homeserver base URL (e.g. `https://matrix.castalia.institute/.well-known/matrix/client`) and expects an **`issuer`** that matches Supabase’s OIDC discovery (`jwt_issuer` in **`supabase/config.toml`**).
+
+### 6a — Synapse: advertise the issuer
+
+Merge **`configs/synapse-extra-well-known-msc2965.castalia.yaml`** into **`homeserver.yaml`** on the Matrix host, then restart Synapse. Verify:
+
+```bash
+curl -sS https://matrix.castalia.institute/.well-known/matrix/client | jq .
+```
+
+You should see **`org.matrix.msc2965.authentication.issuer`** alongside **`m.homeserver`**.
+
+### 6b — Supabase OAuth App: Third Room redirect URIs
+
+Use the **same public OAuth client** as Synapse ( **`SUPABASE_OIDC_CLIENT_ID`** ) or register a dedicated client. For each Third Room deployment, add **exact** redirect origins (PKCE):
+
+- Local: `http://localhost:3000/` and `http://127.0.0.1:3000/`
+- Production: e.g. `https://thirdroom.castalia.institute/` (your real host + path)
+
+Keep Synapse’s callback **`https://matrix.castalia.institute/_synapse/client/oidc/callback`** on that client if you reuse it.
+
+### 6c — Third Room client env
+
+In the Third Room fork (**InquiryInstitute/thirdroom**, **`castalia`** branch), set:
+
+- **`VITE_SUPABASE_OIDC_CLIENT_ID`** — OAuth App client UUID (same as Matrix/Synapse OIDC unless you use a separate app).
+- Optional **`VITE_SUPABASE_OIDC_ISSUER`** — only if it must differ from **`jwt_issuer`** in **`supabase/config.toml`**.
+
+Copy **`.env.example`** to **`.env.local`** for `yarn dev`. Restart Vite after changing env vars.
