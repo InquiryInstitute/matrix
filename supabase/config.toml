@@ -160,19 +160,24 @@ additional_redirect_urls = [
   "https://castalia.institute/auth/callback/",
   "https://castalia.institute/auth/v1/oauth/authorize",
   "https://castalia.institute/auth/v1/oauth/authorize/",
-  "https://inquiryinstitute.github.io/martech/",
-  "https://inquiryinstitute.github.io/martech/**",
   "https://martech.castalia.institute",
   "https://martech.castalia.institute/**",
   "https://matrix.castalia.institute/_synapse/client/oidc/callback",
   "http://localhost:8008/_synapse/client/oidc/callback",
   "http://127.0.0.1:8008/_synapse/client/oidc/callback",
   "https://127.0.0.1:3000",
+  # Third Room (Hydrogen OIDC): redirect_uri is `${origin}/` — must match exactly (trailing slash).
+  "https://thirdroom.castalia.institute/",
+  "https://inquiryinstitute.github.io/thirdroom/",
+  "http://localhost:3000/",
+  "http://127.0.0.1:3000/",
 ]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
-# JWT issuer URL. If not set, defaults to the local API URL (http://127.0.0.1:<port>/auth/v1).
-# jwt_issuer = ""
+# JWT issuer MUST match hosted Auth for OAuth token exchange. If this is left unset or pushed from
+# local dev, remote can end up with http://127.0.0.1:54321/auth/v1 — then POST /oauth/token returns 500
+# and Matrix OIDC shows "Authentication failed". Update project ref if you fork the Supabase project.
+jwt_issuer = "https://pilmscrodlitdrygabvo.supabase.co/auth/v1"
 # Path to JWT signing key. DO NOT commit your signing keys file to git.
 # signing_keys_path = "./signing_keys.json"
 # If disabled, the refresh token will never expire.
