@@ -89,7 +89,7 @@ See **`scripts/configure-matrix-oidc.sh`** for the YAML it appends (`client_auth
 ### Troubleshooting: 400 on `…/auth/v1/oauth/authorize`
 
 - **Wrong `client_id`**: Use the **OAuth App** Client ID from §1a, not the anon key.
-- **Wrong `redirect_uri`**: Must match an OAuth App redirect URI **exactly** (scheme, host, path).
+- **Wrong `redirect_uri`**: Must appear on the **OAuth App** in **Dashboard → OAuth Apps** (not only in `config.toml` **`additional_redirect_urls`**). Match **exactly** (scheme, host, path, trailing slash). Third Room uses `https://thirdroom.castalia.institute/` — see **§6b**.
 - **Response body**: Open DevTools → Network → failed request → JSON often includes `error` / `error_description`.
 
 ### Troubleshooting: 400 on `…/_synapse/client/oidc/callback?code=…`
@@ -153,14 +153,23 @@ curl -sS https://matrix.castalia.institute/.well-known/matrix/client | jq .
 
 You should see **`org.matrix.msc2965.authentication.issuer`** alongside **`m.homeserver`**.
 
-### 6b — Supabase OAuth App: Third Room redirect URIs
+### 6b — Supabase OAuth App: Third Room redirect URIs (required for `/oauth/authorize`)
 
-Use the **same public OAuth client** as Synapse ( **`SUPABASE_OIDC_CLIENT_ID`** ) or register a dedicated client. For each Third Room deployment, add **exact** redirect origins (PKCE):
+**Pushing `additional_redirect_urls` in `supabase/config.toml` is not enough** for Third Room. The authorize endpoint validates `redirect_uri` against **Authentication → OAuth Apps → your public client → Redirect URIs** (see §1a). If Third Room’s origin is missing there, **`GET …/auth/v1/oauth/authorize` returns HTTP 400** (`validation_failed` / `invalid redirect_uri`).
 
-- Local: `http://localhost:3000/` and `http://127.0.0.1:3000/`
-- Production: e.g. `https://thirdroom.castalia.institute/` (your real host + path)
+1. Open **Supabase Dashboard** → your project → **Authentication** → **OAuth Apps** (under *Manage*).
+2. Select the **public** client whose **Client ID** equals **`VITE_SUPABASE_OIDC_CLIENT_ID`** / Synapse **`oidc_providers.client_id`** (UUID, not the anon JWT).
+3. Under **Redirect URIs**, add **every** URL Third Room will send — **exact** string match (scheme, host, path, trailing slash):
 
-Keep Synapse’s callback **`https://matrix.castalia.institute/_synapse/client/oidc/callback`** on that client if you reuse it.
+   - `https://thirdroom.castalia.institute/`
+   - `https://inquiryinstitute.github.io/thirdroom/` (GitHub Pages default URL, if used)
+   - `http://localhost:3000/`
+   - `http://127.0.0.1:3000/`
+
+4. Keep Synapse’s callback on the **same** client if you reuse one app:  
+   `https://matrix.castalia.institute/_synapse/client/oidc/callback`
+
+Third Room builds `redirect_uri` as **`${window.location.origin}/`** (always a **trailing slash**). Do not register only `https://thirdroom.castalia.institute` without `/` unless you change the app.
 
 ### 6c — Third Room client env
 
